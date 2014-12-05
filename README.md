@@ -16,10 +16,6 @@ Yet another MySQL proxy with Go.
     make
     make test
 
-+ mkdir $workspace
-+ cd $workspace
-+ git clone github.com
-
 ## Feature
 
 ## Feedback

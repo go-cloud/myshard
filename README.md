@@ -2,12 +2,26 @@
 
 Yet another MySQL proxy with Go. 
 
-# Architecture
-
 ![Architecture](./doc/architecture.png)
 
-# Feature
+## Install
 
-# Feedback
+    cd $WORKSPACE
+    git clone git@github.com:go-cloud/myshard.git src/github.com/go-cloud/myshard
+    
+    cd src/github.com/go-cloud/myshard
+
+    ./bootstrap.sh
+
+    make
+    make test
+
++ mkdir $workspace
++ cd $workspace
++ git clone github.com
+
+## Feature
+
+## Feedback
 
 + siddontang@gmail.com

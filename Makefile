@@ -1,6 +1,6 @@
 all: build
 
-build: build-proxy build-config build-keeper
+build: build-proxy build-config build-agent
 
 build-proxy:
 	go build -o bin/my-proxy ./cmd/proxy
@@ -8,8 +8,8 @@ build-proxy:
 build-config:
 	go build -o bin/my-config ./cmd/config
 
-build-keeper:
-	go build -o bin/my-keeper ./cmd/keeper
+build-agent:
+	go build -o bin/my-agent ./cmd/agent
 
 clean:
 	@rm -rf bin

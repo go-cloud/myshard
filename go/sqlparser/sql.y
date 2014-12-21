@@ -91,6 +91,15 @@ var (
 %token <empty> TABLE INDEX VIEW TO IGNORE IF UNIQUE USING
 %token <empty> SHOW DESCRIBE EXPLAIN
 
+// Transaction Tokens
+%token <empty> BEGIN COMMIT ROLLBACK
+
+// Charset Tokens
+%token <empty> NAMES 
+
+// Replace
+%token <empty> REPLACE
+
 %start any_command
 
 %type <statement> command
@@ -144,6 +153,9 @@ var (
 %type <bytes> sql_id
 %type <empty> force_eof
 
+%type <statement> begin_statement commit_statement rollback_statement
+%type <statement> replace_statement
+
 %%
 
 any_command:
@@ -167,9 +179,17 @@ command:
 | drop_statement
 | analyze_statement
 | other_statement
+| replace_statement
+| begin_statement
+| commit_statement
+| rollback_statement
 
 select_statement:
-  SELECT comment_opt distinct_opt select_expression_list FROM table_expression_list where_expression_opt group_by_opt having_opt order_by_opt limit_opt lock_opt
+  SELECT comment_opt distinct_opt select_expression_list
+  {
+    $$ = &SimpleSelect{Comments: Comments($2), Distinct: $3, SelectExprs: $4}
+  }
+| SELECT comment_opt distinct_opt select_expression_list FROM table_expression_list where_expression_opt group_by_opt having_opt order_by_opt limit_opt lock_opt
   {
     $$ = &Select{Comments: Comments($2), Distinct: $3, SelectExprs: $4, From: $6, Where: NewWhere(AST_WHERE, $7), GroupBy: GroupBy($8), Having: NewWhere(AST_HAVING, $9), OrderBy: $10, Limit: $11, Lock: $12}
   }
@@ -194,6 +214,22 @@ insert_statement:
     $$ = &Insert{Comments: Comments($2), Table: $4, Columns: cols, Rows: Values{vals}, OnDup: OnDup($7)}
   }
 
+replace_statement:
+  REPLACE comment_opt INTO dml_table_expression column_list_opt row_list
+  {
+    $$ = &Replace{Comments: Comments($2), Table: $4, Columns: $5, Rows: $6}
+  }
+| REPLACE comment_opt INTO dml_table_expression SET update_list
+  {
+    cols := make(Columns, 0, len($6))
+    vals := make(ValTuple, 0, len($6))
+    for _, col := range $6 {
+      cols = append(cols, &NonStarExpr{Expr: col.Name})
+      vals = append(vals, col.Expr)
+    }
+    $$ = &Replace{Comments: Comments($2), Table: $4, Columns: cols, Rows: Values{vals}}
+  }
+
 update_statement:
   UPDATE comment_opt dml_table_expression SET update_list where_expression_opt order_by_opt limit_opt
   {
@@ -210,6 +246,28 @@ set_statement:
   SET comment_opt update_list
   {
     $$ = &Set{Comments: Comments($2), Exprs: $3}
+  }
+| SET comment_opt NAMES ID 
+  {
+    $$ = &Set{Comments: Comments($2), Exprs: UpdateExprs{&UpdateExpr{Name: &ColName{Name:[]byte("names")}, Expr: StrVal($4)}}}
+  }
+
+begin_statement:
+  BEGIN
+  {
+    $$ = &Begin{}
+  }
+
+commit_statement:
+  COMMIT
+  {
+    $$ = &Commit{}
+  }
+
+rollback_statement:
+  ROLLBACK
+  {
+    $$ = &Rollback{}
   }
 
 create_statement:

@@ -105,6 +105,14 @@ var keywords = map[string]int{
 	"view":          VIEW,
 	"when":          WHEN,
 	"where":         WHERE,
+
+	//for myshard token
+	"begin":    BEGIN,
+	"rollback": ROLLBACK,
+	"commit":   COMMIT,
+
+	"names":   NAMES,
+	"replace": REPLACE,
 }
 
 // Lex returns the next token form the Tokenizer.

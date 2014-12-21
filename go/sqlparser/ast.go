@@ -967,3 +967,58 @@ func (node OnDup) Format(buf *TrackedBuffer) {
 	}
 	buf.Myprintf(" on duplicate key update %v", UpdateExprs(node))
 }
+
+func (*Begin) IStatement()    {}
+func (*Commit) IStatement()   {}
+func (*Rollback) IStatement() {}
+
+type Begin struct {
+}
+
+func (node *Begin) Format(buf *TrackedBuffer) {
+	buf.Myprintf("begin")
+}
+
+type Commit struct {
+}
+
+func (node *Commit) Format(buf *TrackedBuffer) {
+	buf.Myprintf("commit")
+}
+
+type Rollback struct {
+}
+
+func (node *Rollback) Format(buf *TrackedBuffer) {
+	buf.Myprintf("rollback")
+}
+
+// Replace represents an REPLACE statement.
+type Replace struct {
+	Comments Comments
+	Table    *TableName
+	Columns  Columns
+	Rows     InsertRows
+}
+
+func (node *Replace) Format(buf *TrackedBuffer) {
+	buf.Myprintf("replace %vinto %v%v %v%v",
+		node.Comments,
+		node.Table, node.Columns, node.Rows)
+}
+
+func (*Replace) IStatement() {}
+
+type SimpleSelect struct {
+	Comments    Comments
+	Distinct    string
+	SelectExprs SelectExprs
+}
+
+func (node *SimpleSelect) Format(buf *TrackedBuffer) {
+	buf.Myprintf("select %v%s%v", node.Comments, node.Distinct, node.SelectExprs)
+}
+
+func (*SimpleSelect) IStatement()       {}
+func (*SimpleSelect) ISelectStatement() {}
+func (*SimpleSelect) IInsertRows()      {}

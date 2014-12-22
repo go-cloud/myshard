@@ -1,0 +1,13 @@
+language: go
+
+go:
+  - 1.3
+  - tip
+
+before_install:
+  - go get github.com/tools/godep
+  - go get code.google.com/p/go.tools/cmd/cover
+
+script:
+  - godep go test -cover ./go/...
+  - godep go test -race ./go/...

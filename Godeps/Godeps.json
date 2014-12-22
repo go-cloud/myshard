@@ -1,0 +1,33 @@
+{
+	"ImportPath": "github.com/go-cloud/myshard",
+	"GoVersion": "go1.3.3",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/siddontang/go-mysql/mysql",
+			"Rev": "7a9586a84dafada6865ace32e7f87f5b7c05434f"
+		},
+		{
+			"ImportPath": "github.com/siddontang/go-mysql/packet",
+			"Rev": "7a9586a84dafada6865ace32e7f87f5b7c05434f"
+		},
+		{
+			"ImportPath": "github.com/siddontang/go-mysql/server",
+			"Rev": "7a9586a84dafada6865ace32e7f87f5b7c05434f"
+		},
+		{
+			"ImportPath": "github.com/siddontang/go/hack",
+			"Rev": "8f64946c30746240c2f3bdb606eed9a4aca34478"
+		},
+		{
+			"ImportPath": "github.com/siddontang/go/log",
+			"Rev": "8f64946c30746240c2f3bdb606eed9a4aca34478"
+		},
+		{
+			"ImportPath": "github.com/siddontang/go/sync2",
+			"Rev": "8f64946c30746240c2f3bdb606eed9a4aca34478"
+		}
+	]
+}

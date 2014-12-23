@@ -3,9 +3,21 @@ package proxy
 import (
 	"fmt"
 	. "github.com/siddontang/go-mysql/mysql"
+	"github.com/siddontang/go-mysql/server"
 )
 
 type Handler struct {
+	s *Server
+
+	conn *server.Conn
+}
+
+func newHandler(s *Server) *Handler {
+	h := new(Handler)
+
+	h.s = s
+
+	return h
 }
 
 func (h *Handler) UseDB(dbName string) error {

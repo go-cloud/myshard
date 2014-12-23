@@ -15,4 +15,4 @@ clean:
 	@rm -rf bin
 
 test:
-	go test ./... -race
+	go test ./go/... -race

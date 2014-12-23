@@ -5,6 +5,7 @@ import (
 	"github.com/siddontang/go-mysql/server"
 	"github.com/siddontang/go/log"
 	"net"
+	"sync"
 )
 
 // Server acts as a MySQL server, it listens and accepts MySQL client connections,
@@ -16,6 +17,8 @@ type Server struct {
 	addr     string
 	user     string
 	password string
+
+	wg sync.WaitGroup
 }
 
 func NewServer(addr string, user string, password string) (*Server, error) {
@@ -45,19 +48,34 @@ func (s *Server) run() {
 			return
 		}
 
+		s.wg.Add(1)
 		go s.onConn(c)
 	}
 }
 
 func (s *Server) onConn(c net.Conn) {
-	conn, err := server.NewConn(c, s.user, s.password, new(Handler))
+	defer s.wg.Done()
+
+	h := newHandler(s)
+	conn, err := server.NewConn(c, s.user, s.password, h)
 	if err != nil {
 		log.Error("new connection error %s", err.Error())
 		c.Close()
 		return
 	}
 
+	h.conn = conn
+
 	for {
+		select {
+		case <-s.quit:
+			// Proxy quited, close conection
+			conn.Close()
+			return
+		default:
+			break
+		}
+
 		err = conn.HandleCommand()
 		if err != nil {
 			log.Error("handle command error %s", err.Error())

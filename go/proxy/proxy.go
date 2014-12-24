@@ -1,9 +1,9 @@
 package proxy
 
 import (
+	log "github.com/golang/glog"
 	. "github.com/siddontang/go-mysql/mysql"
 	"github.com/siddontang/go-mysql/server"
-	"github.com/siddontang/go/log"
 	"net"
 	"sync"
 )
@@ -59,7 +59,7 @@ func (s *Server) onConn(c net.Conn) {
 	h := newHandler(s)
 	conn, err := server.NewConn(c, s.user, s.password, h)
 	if err != nil {
-		log.Error("new connection error %s", err.Error())
+		log.Errorf("new connection error %s", err.Error())
 		c.Close()
 		return
 	}
@@ -78,7 +78,7 @@ func (s *Server) onConn(c net.Conn) {
 
 		err = conn.HandleCommand()
 		if err != nil {
-			log.Error("handle command error %s", err.Error())
+			log.Errorf("handle command error %s", err.Error())
 			return
 		}
 	}

@@ -83,8 +83,69 @@ type ProxyNode struct {
 
 ## Route
 
-route用来存放路由表信息
+route用来存放路由表信息，myshard会根据首先解析sql，然后根据响应的路由规则将sql发到不同的group里面的一台MySQL去执行。
 
+对于客户端来说，它只知道sql的db和table，但是在myshard内部，我们可能将该数据拆分到不同的子table上面，也就是说，对外可能是user表，但在
+myshard内部，我们使用的是user_1, user_2, ... user_1024。
+
+而对于一个db，它可能存放到不同的group上面
+
+```
+/zk/myshard/dbs/db_1
+/zk/myshard/dbs/db_2
+```
+
+db node
+
+```
+type DBNode struct {
+    Name string
+    GroupIDs []int //group ids
+    Status string
+
+    //如果table没有指定group，则默认在该group上面
+    DefaultGroupID int
+}
+```
+
+table
+
+```
+/zk/myshard/dbs/db_1/user
+```
+
+table node
+
+```
+type TableNode struct {
+    //如果改table没有切分，则使用groupid，否则，各个子表需要使用各自对应的groupid
+    GroupID int
+
+    //因为可能会有多个子表，为了简单，key的格式可能如下
+    // 1      表示table_1
+    // 1,2,3  表示table_1, table_2, table_3
+    // 1-3    表示table_1, table_2, table_3
+    SubTables map[string]int
+}
+```
+
+```
+/zk/myshard/routes/db_1/user_route
+```
+
+route node
+
+```
+type RouteNode struct {
+    DB string
+    Table string
+
+    Type string    //hash or range
+    Column string  //table column for route
+
+    RangeMap map[string]int  // key like "1-100" -> table id 
+}
+```
 
 ## Action
 
@@ -112,3 +173,31 @@ type ActionNode struct {
 ```
 /zk/myshard/lock
 ```
+
+## Migrate
+
+如果预估到一个表数据量会很大，我们需要在开始的时候就对其进行分表处理，譬如1024张表
+
+myshard对于数据迁移是以子表为单位的，假设现在结构如下
+
+    group1 -> user_1, user_2, user_3
+    group2 -> user_4
+
+因为group1的压力，我们需要将user_2移动到group2
+
++ 我们先将当前user_2表数据拷贝到group2上面
++ 因为这时候可能会有新的写入操作发生，我们只需要进行binlog同步就可以
++ 当binlog同步完成或者两个group之间的相差不大，我们通过config像zk发起迁移action
++ proxy收到改action之后，会拒绝所有对user表的写操作，但读仍然可行，同时等待先前所有对user表的写操作完成
++ proxy通过zk告知config可以迁移
++ config等待binlog同步完成，然后更新路由表
++ proxy收到路由表更新事件，在本地更新路由表，同时告知config更新完成
++ config发起迁移完成action，proxy收到之后开始新的处理。因为这时候仍然有老的连接在使用就得数据查询，所以我们会在一段时间之后才从group1删除user_2
+
+迁移过程中的错误处理，后续完善
+
+## Up and Down MySQL
+
+通过config对某个group内的MySQL集群进行操作，大概流程类似migrate，只是proxy需要处理的是group，而不是特定的表
+
+config在操作的时候一定要首先获取lock，也就是同一个时间只允许一个全局更新操作

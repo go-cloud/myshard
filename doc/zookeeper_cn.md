@@ -42,7 +42,6 @@ MySQL node
 
 ```
 type MySQLNode struct {
-    ID int      //MySQL server id, must be unique in the global topology
     Addr string 
     Type string //master or slave
     Status string

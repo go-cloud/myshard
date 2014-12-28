@@ -28,7 +28,7 @@ func (t *Topo) Close() {
 
 // Clear all zk data, very dangerous to use
 func (t *Topo) clear() error {
-	p := fmt.Sprintf("/%s", t.Name)
+	p := fmt.Sprintf("/zk/%s", t.Name)
 
 	err := zkhelper.DeleteRecursive(t.conn, p, -1)
 	if zkhelper.ZkErrorEqual(err, zk.ErrNoNode) {

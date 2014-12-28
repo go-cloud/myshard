@@ -9,7 +9,7 @@ import (
 
 // agent:
 func (t *Topo) GetAgentPath() string {
-	return fmt.Sprintf("/%s/agents", t.Name)
+	return fmt.Sprintf("/zk/%s/agents", t.Name)
 }
 
 func (t *Topo) CreateAgent(nodeAddr string) (string, error) {

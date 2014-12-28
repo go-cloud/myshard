@@ -1,5 +1,9 @@
 在myshard里面，我们使用zookeeper（后续以zk代替）来进行全局配置管理，以及协调多个服务。
 
+这里只是一个草稿，后续代码实现可能变动较大，仅仅作为临时记录实现的地方
+
+后续会有完整的英文文档
+
 ## MySQL
 
 我们使用group来表明一组MySQL，一组MySQL至少需要有一个master，可以有0个或者多个slave。也就是最常用的master/slave模式，我们不建议使用master/master架构模式，因为这样可能引入更多的复制问题，如果真要支持，myshard也可能只会选择一个进行写入操作，而将另一个当做slave。另外，还需要考虑gelera的架构模式，应该可以退化到单master情况，（gelera虽然有三台MySQL，但外部通过一个入口访问。）

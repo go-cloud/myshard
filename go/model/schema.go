@@ -16,21 +16,15 @@ type Schema struct {
 type Table struct {
 	DB string `json:"db"`
 
-	// num > 0 If table is spllited
-	SubTableNum int `json:"sub_table_num"`
-
 	// If the table is not splitted, it will be stored in this group
 	GroupID int `json:"group_id"`
 
 	// If the table is splitted, e.g. a user table, may be splitted into 1024,
 	// so the real table may be stored in different groups
 	// like user_0 stored in group_0, user_1 stored in group_1
-	// key format:
-	//  1        -> user_1
-	//  1,2,3    -> user_1, user_2 and user_3
-	//  1-3      -> user_1, user_2 and user_3
-	// value is the group id
-	SubTables map[string]int `json:"sub_tables"`
+	// the sub table id must start from 0, so we can use a slice to map
+	// the table id -> group id
+	SubTables []int `json:"sub_tables"`
 
 	// Later use, todo, maybe for migrate
 	Status string `json:"status"`

@@ -16,6 +16,7 @@ type Node struct {
 	Type    string `json:"type"`
 	Status  string `json:"status"`
 	GroupID int    `json:"group_id"`
+	Weight  int    `json:"weight"`
 }
 
 const (

@@ -8,10 +8,10 @@ const (
 // Proxy is proxy server
 type Proxy struct {
 	// For MySQL protocol communication
-	Addr string
+	Addr string `json:"addr"`
 
 	// Proxy HTTP communication
-	HttpAddr string
+	HttpAddr string `json:"http_addr"`
 
-	Status string
+	Status string `json:"status"`
 }

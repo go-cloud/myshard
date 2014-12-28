@@ -2,25 +2,25 @@ package model
 
 // Schema is MySQL database, and can be stored in one or more groups.
 type Schema struct {
-	Name string
+	Name string `json:"name"`
 
-	GroupIDs []int
+	GroupIDs []int `json:"group_ids"`
 
 	// The default group for the table stored
-	DefaultGroupID int
+	DefaultGroupID int `json:"default_group_id"`
 
 	// Later use, todo, maybe for migrate
-	Status string
+	Status string `json:"status"`
 }
 
 type Table struct {
-	Schema string
+	DB string `json:"db"`
 
 	// num > 0 If table is spllited
-	SubTableNum int
+	SubTableNum int `json:"sub_table_num"`
 
 	// If the table is not splitted, it will be stored in this group
-	GroupID int
+	GroupID int `json:"group_id"`
 
 	// If the table is splitted, e.g. a user table, may be splitted into 1024,
 	// so the real table may be stored in different groups
@@ -30,8 +30,8 @@ type Table struct {
 	//  1,2,3    -> user_1, user_2 and user_3
 	//  1-3      -> user_1, user_2 and user_3
 	// value is the group id
-	SubTables map[string]int
+	SubTables map[string]int `json:"sub_tables"`
 
 	// Later use, todo, maybe for migrate
-	Status string
+	Status string `json:"status"`
 }

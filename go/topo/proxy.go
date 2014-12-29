@@ -9,7 +9,7 @@ import (
 	"path"
 )
 
-func (t *Topo) GetProxyPath() string {
+func (t *Topo) GetProxyBasePath() string {
 	return fmt.Sprintf("/zk/%s/proxys", t.Name)
 }
 
@@ -19,7 +19,7 @@ func (t *Topo) CreateProxy(p *model.Proxy) (string, error) {
 		return "", err
 	}
 
-	base := t.GetProxyPath()
+	base := t.GetProxyBasePath()
 
 	zkhelper.CreateRecursive(t.conn, base, "", 0, zkhelper.DefaultDirACLs())
 
@@ -27,11 +27,11 @@ func (t *Topo) CreateProxy(p *model.Proxy) (string, error) {
 }
 
 func (t *Topo) DeleteProxy(addr string) error {
-	return t.conn.Delete(path.Join(t.GetProxyPath(), addr), -1)
+	return t.conn.Delete(path.Join(t.GetProxyBasePath(), addr), -1)
 }
 
 func (t *Topo) ListProxys() ([]*model.Proxy, error) {
-	names, _, err := t.conn.Children(t.GetProxyPath())
+	names, _, err := t.conn.Children(t.GetProxyBasePath())
 
 	if err != nil && !zkhelper.ZkErrorEqual(err, zk.ErrNoNode) {
 		return nil, err
@@ -53,7 +53,7 @@ func (t *Topo) ListProxys() ([]*model.Proxy, error) {
 func (t *Topo) GetProxy(addr string) (*model.Proxy, error) {
 	var p model.Proxy
 
-	data, _, err := t.conn.Get(path.Join(t.GetProxyPath(), addr))
+	data, _, err := t.conn.Get(path.Join(t.GetProxyBasePath(), addr))
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (t *Topo) SetProxyStatus(addr string, status string) error {
 
 	b, _ := json.Marshal(p)
 
-	_, err = t.conn.Set(path.Join(t.GetProxyPath(), addr), b, -1)
+	_, err = t.conn.Set(path.Join(t.GetProxyBasePath(), addr), b, -1)
 
 	return err
 }

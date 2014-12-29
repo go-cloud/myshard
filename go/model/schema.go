@@ -16,6 +16,8 @@ type Schema struct {
 type Table struct {
 	DB string `json:"db"`
 
+	Name string `json:"name"`
+
 	// If the table is not splitted, it will be stored in this group
 	GroupID int `json:"group_id"`
 
